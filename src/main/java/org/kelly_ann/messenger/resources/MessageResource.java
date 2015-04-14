@@ -1,9 +1,14 @@
 package org.kelly_ann.messenger.resources;
 
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.kelly_ann.messenger.model.Message;
+import org.kelly_ann.messenger.service.MessageService;
 
 /*
  * How to create a resource:
@@ -26,10 +31,12 @@ import javax.ws.rs.core.MediaType;
 @Path("/messages")
 public class MessageResource {
 	
+	MessageService messageService = new MessageService();
+	
 	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getMessages() {
-		return "Hello World!  I am your new custom resource!";
+	@Produces(MediaType.APPLICATION_XML)
+	public List<Message> getMessages() {
+		return messageService.getAllMessages();
 	}
 	
 }
