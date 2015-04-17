@@ -15,8 +15,10 @@ import org.kelly_ann.messenger.model.Message;
 // Note: if this were an actual service it would make a call to the db and get the list of Messages.
 public class MessageService {
 	
+	// get the entire & empty Message map
 	private Map<Long, Message> messages = DatabaseClass.getMessages();
 	
+	// the default constructor starts by adding 2 new messages to your map using the Message.java model
 	public MessageService() {
 		messages.put(1L, new Message(1, "Hello World", "Kelly-Ann"));
 		messages.put(2L, new Message(2, "Hello Jersey", "Kelly-Ann"));
@@ -24,6 +26,7 @@ public class MessageService {
 	
 	public List<Message> getAllMessages() {
 		// pass the Map collection to the ArrayList collection to initialize the ArrayList with those elements.
+		// this returns a List of Message objects to the MessageResource.java call to getMessages() method.
 		return new ArrayList<Message>(messages.values());
 	}
 	

@@ -33,6 +33,7 @@ public class MessageResource {
 	
 	MessageService messageService = new MessageService();
 	
+	// this is what gets called by the REST API client tool (i.e. Postman)
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	public List<Message> getMessages() {

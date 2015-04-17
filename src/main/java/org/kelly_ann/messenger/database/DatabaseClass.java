@@ -7,7 +7,7 @@ import org.kelly_ann.messenger.model.Message;
 import org.kelly_ann.messenger.model.Profile;
 
 /*
- * This allows for a faux database interaction.
+ * This class allows for a faux database interaction.
  * Note: This is not thread safe since it is being used on 1 developer's PC only.
  */
 public class DatabaseClass {

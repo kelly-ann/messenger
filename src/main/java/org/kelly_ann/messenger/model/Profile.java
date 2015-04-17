@@ -5,7 +5,7 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-
+// model class for a profile
 @XmlRootElement
 public class Profile {
 	
