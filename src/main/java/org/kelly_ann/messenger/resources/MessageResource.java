@@ -39,6 +39,10 @@ import org.kelly_ann.messenger.service.MessageService;
  * Important Note:  
  * The @PathParam is pretty powerful!  It can be used to return multiple path params in a URI ex: "something/id1/name/id2".  It can also 
  * be used to return regex's ex: all URIs beginning with "something/".
+ * 
+ * Step 7:  To switch from returning XML to returning JSON via the webservice API: 1) change the @Produces annotation 
+ * to "APPLICATION_JSON".  Then, open the Maven "pom.xml" file and click on the "pom.xml" tab.  Uncomment the lines that 
+ * say "<!-- uncomment this to get JSON support", save the pom.xml file and restart/reload the Tomcat server.
  */
 @Path("/messages")
 public class MessageResource {
@@ -48,7 +52,7 @@ public class MessageResource {
 	// API #1
 	// this is what gets called by the REST API client tool (i.e. Postman) by default
 	@GET
-	@Produces(MediaType.APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_JSON)
 	public List<Message> getMessages() {
 		return messageService.getAllMessages();
 	}
@@ -56,7 +60,7 @@ public class MessageResource {
 	// API #2
 	@GET
 	@Path("/{messageId}") // this denotes that messageId will be a VARIABLE URL element
-	@Produces(MediaType.APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Message getMessage(@PathParam("messageId") long id) { // Jersey will auto convert the String messageId to a long
 		return messageService.getMessage(id);
 		//return "Got path param " + messageId; this tests the method with a print statement
