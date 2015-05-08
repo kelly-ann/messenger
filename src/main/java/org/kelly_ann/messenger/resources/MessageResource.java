@@ -2,7 +2,11 @@ package org.kelly_ann.messenger.resources;
 
 import java.util.List;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -43,27 +47,56 @@ import org.kelly_ann.messenger.service.MessageService;
  * Step 7:  To switch from returning XML to returning JSON via the webservice API: 1) change the @Produces annotation 
  * to "APPLICATION_JSON".  Then, open the Maven "pom.xml" file and click on the "pom.xml" tab.  Uncomment the lines that 
  * say "<!-- uncomment this to get JSON support", save the pom.xml file and restart/reload the Tomcat server.
+ * 
+ * Step 8:  To implement a POST method you need the @Consumes method annotation along with the @Produces annotation since the 
+ * method will take in information from the user.
+ * 
+ * Tip!  Instead of doing multiple @Produces and @Consumes annotations on each method you can set them all at once at the 
+ * class-level instead.
  */
 @Path("/messages")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class MessageResource {
 	
 	MessageService messageService = new MessageService();
 	
-	// API #1
+	// GET HTTP methods return an existing single resource or existing collection of resources.
+	// API #1 - this GET method returns an existing collection of Messages
 	// this is what gets called by the REST API client tool (i.e. Postman) by default
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
 	public List<Message> getMessages() {
 		return messageService.getAllMessages();
 	}
 	
-	// API #2
+	// API #2 - this GET method return an existing single
 	@GET
 	@Path("/{messageId}") // this denotes that messageId will be a VARIABLE URL element
-	@Produces(MediaType.APPLICATION_JSON)
 	public Message getMessage(@PathParam("messageId") long id) { // Jersey will auto convert the String messageId to a long
 		return messageService.getMessage(id);
 		//return "Got path param " + messageId; this tests the method with a print statement
 	}
+	
+	// API #3 POST HTTP methods add a new resource
+	@POST
+	public Message addMessage(Message message) {
+		return messageService.addMessage(message);
+	}
+	
+	// API #4 PUT HTTP methods update an existing resource
+	@PUT
+	@Path("/{messageId}")
+	public Message updateMessage(@PathParam("messageId") long id, Message message) {
+		message.setId(id);
+		return messageService.updateMessage(message);
+	}
+	
+	// API #5 DELETE HTTP methods remove an existing resource
+	@DELETE
+	@Path("/{messageId}")
+	public void deleteMessage(@PathParam("messageId") long id) {
+		messageService.removeMessage(id);
+	}
+	
 	
 }
