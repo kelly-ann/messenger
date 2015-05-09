@@ -10,6 +10,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.kelly_ann.messenger.model.Message;
@@ -53,6 +54,9 @@ import org.kelly_ann.messenger.service.MessageService;
  * 
  * Tip!  Instead of doing multiple @Produces and @Consumes annotations on each method you can set them all at once at the 
  * class-level instead.
+ * 
+ * Step 9:  The @QueryParam annotation can be added in to determine which method to run from the MessageService class when there is or 
+ * isn't a query parameter supplied.
  */
 @Path("/messages")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -65,7 +69,15 @@ public class MessageResource {
 	// API #1 - this GET method returns an existing collection of Messages
 	// this is what gets called by the REST API client tool (i.e. Postman) by default
 	@GET
-	public List<Message> getMessages() {
+	public List<Message> getMessages(@QueryParam("year") int year,
+									 @QueryParam("start") int start,
+									 @QueryParam("size") int size) {
+		if (year > 0) {
+			return messageService.getAllMessagesForYear(year);
+		}
+		if (start >= 0 && size > 0) {
+			return messageService.getAllMessagesPaginated(start, size);
+		}
 		return messageService.getAllMessages();
 	}
 	
