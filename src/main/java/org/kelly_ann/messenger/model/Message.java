@@ -1,8 +1,11 @@
 package org.kelly_ann.messenger.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 
 /*
@@ -17,6 +20,7 @@ public class Message {
 	private String message;
 	private Date created;
 	private String author;
+	private Map<Long, Comment> comments = new HashMap<>();
 	
 	
 	/*
@@ -66,5 +70,13 @@ public class Message {
 		this.author = author;
 	}
 	
+	@XmlTransient // this makes it so that when you access a Message you don't get all the Comment's for that message returned to you also.
+	public Map<Long, Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(Map<Long, Comment> comments) {
+		this.comments = comments;
+	}
 	
 }

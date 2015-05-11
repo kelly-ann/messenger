@@ -59,6 +59,9 @@ import org.kelly_ann.messenger.service.MessageService;
  * Step 9:  The @QueryParam annotation can be added in to determine which method to run from the MessageService class when there is or 
  * isn't a query parameter supplied.  Since we had 3 @QueryParam annotations in the getMessages() method we created a MessageFilterBean
  * class and used the @BeanParam instead to access the getter methods for the @QueryParam variables in the MessageFilterBean class.
+ * 
+ * Step 10:  Create any sub resources by adding a method that returns the sub resource class's data type and uses the @Path to create 
+ * the sub resource's URI on which the parent resource (i.e. this class) will invoke the sub resource's class (i.e. CommentResource.java).
  */
 @Path("/messages")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -110,5 +113,9 @@ public class MessageResource {
 		messageService.removeMessage(id);
 	}
 	
-	
+	// API #6 - This creates a URI SUBRESOURCE that is not attached to any specific resource and is handled by the CommentResource.java.
+	@Path("/{messageId}/comments")
+	public CommentResource getCommentResource() {
+		return new CommentResource();
+	}
 }
