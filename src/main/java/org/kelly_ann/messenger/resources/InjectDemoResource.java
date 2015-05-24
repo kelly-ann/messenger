@@ -25,6 +25,7 @@ public class InjectDemoResource {
 	 * then be accessed and used.
 	 * @CookieParam is a parameter that is to retrieve the cookie's value.
 	 * @FormParam is a parameter that uses the form name as the key and returns the value of the form element to the application.
+	 * @Context is an very useful annotation that gives URI information when matched with the type "UriInfo"
 	 */
 	
 	@GET

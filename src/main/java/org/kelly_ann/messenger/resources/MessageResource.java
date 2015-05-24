@@ -1,5 +1,7 @@
 package org.kelly_ann.messenger.resources;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.BeanParam;
@@ -11,7 +13,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.kelly_ann.messenger.model.Message;
 import org.kelly_ann.messenger.resources.beans.MessageFilterBean;
@@ -62,6 +67,14 @@ import org.kelly_ann.messenger.service.MessageService;
  * 
  * Step 10:  Create any sub resources by adding a method that returns the sub resource class's data type and uses the @Path to create 
  * the sub resource's URI on which the parent resource (i.e. this class) will invoke the sub resource's class (i.e. CommentResource.java).
+ * 
+ * Step 11:  To return the location URI in the response header have the POST method return the Response type and accept
+ * @Context UriInfo as an argument.  Then use the getAbsolutePath() method to return a UriBuilder object that you add the new resource's
+ * id to and return as a URI object via the build() method (i.e. the Build design pattern).
+ * 
+ * Step 12:  To return the status code in the response header call the created() method of the Response object then call the entity() 
+ * method and pass it the new Message object.  Finally, use the build() method to return a Response object as the output of the POST 
+ * method.
  */
 @Path("/messages")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -94,8 +107,13 @@ public class MessageResource {
 	
 	// API #3 POST HTTP methods add a new resource
 	@POST
-	public Message addMessage(Message message) {
-		return messageService.addMessage(message);
+	public Response addMessage(Message message, @Context UriInfo uriInfo) {
+		Message newMessage = messageService.addMessage(message);
+		String newId = String.valueOf(newMessage.getId());
+		URI uri = uriInfo.getAbsolutePathBuilder().path(newId).build(); //the location URI of the newly created resource
+		return Response.created(uri) 
+			.entity(newMessage)
+			.build();  //set the status code to "201" and return it and the location URI in the header
 	}
 	
 	// API #4 PUT HTTP methods update an existing resource
