@@ -75,6 +75,15 @@ import org.kelly_ann.messenger.service.MessageService;
  * Step 12:  To return the status code in the response header call the created() method of the Response object then call the entity() 
  * method and pass it the new Message object.  Finally, use the build() method to return a Response object as the output of the POST 
  * method.
+ * 
+ * Step 13: If the GET method below is called it will call the MessageService.getMessage() method.  If a null message is 
+ * returned we have created the DataNotFoundException class to handle this.  This Exception has 2 exceptionMapper classes: 
+ * DataNotFoundExceptionMapper and GenericExceptionMapper.  Both mapper classes implement the ExceptionMapper interface and 
+ * accept the Generic type DataNotFoundException or the all encompassing Throwable type.  They then @Override the toResponse() 
+ * method which takes in the Exception, sets the ErrorMessage.  Finally the toResponse() method selects the Response object's  
+ * Status.status enum, adds the errorMessage via the ResponseBuilder's entity() method and then calls the build() to return a 
+ * Response object which is the toResponse() method's return type.
+ * 
  */
 @Path("/messages")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -102,7 +111,6 @@ public class MessageResource {
 	@Path("/{messageId}") // this denotes that messageId will be a VARIABLE URL element
 	public Message getMessage(@PathParam("messageId") long id) { // Jersey will auto convert the String messageId to a long
 		return messageService.getMessage(id);
-		//return "Got path param " + messageId; this tests the method with a print statement
 	}
 	
 	// API #3 POST HTTP methods add a new resource
