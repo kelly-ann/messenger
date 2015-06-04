@@ -1,2 +1,2 @@
 # messenger
-messenger Java JAX-RS (REST webservice) web application
+A Java JAX-RS (RESTful webservice) web application using Jersey.
