@@ -8,7 +8,7 @@ import javax.ws.rs.ext.Provider;
 import org.kelly_ann.messenger.model.ErrorMessage;
 
 
-@Provider
+//@Provider  -  commented to disable this class from handling exceptions
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
 	@Override

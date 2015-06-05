@@ -78,11 +78,12 @@ import org.kelly_ann.messenger.service.MessageService;
  * 
  * Step 13: If the GET method below is called it will call the MessageService.getMessage() method.  If a null message is 
  * returned we have created the DataNotFoundException class to handle this.  This Exception has 2 exceptionMapper classes: 
- * DataNotFoundExceptionMapper and GenericExceptionMapper.  Both mapper classes implement the ExceptionMapper interface and 
- * accept the Generic type DataNotFoundException or the all encompassing Throwable type.  They then @Override the toResponse() 
- * method which takes in the Exception, sets the ErrorMessage.  Finally the toResponse() method selects the Response object's  
- * Status.status enum, adds the errorMessage via the ResponseBuilder's entity() method and then calls the build() to return a 
- * Response object which is the toResponse() method's return type.
+ * DataNotFoundExceptionMapper and GenericExceptionMapper which JAX-RS knows are the handlers via the @Provider annotation.  Both 
+ * mapper classes implement the ExceptionMapper interface and accept the Generic type DataNotFoundException or the all 
+ * encompassing Throwable type.  They then @Override the toResponse() method which takes in the Exception, sets the ErrorMessage.  
+ * Finally the toResponse() method selects the Response object's  * Status.status enum, adds the errorMessage via 
+ * the ResponseBuilder's entity() method and then calls the build() to return a Response object which is the toResponse() method's 
+ * return type.
  * 
  */
 @Path("/messages")
