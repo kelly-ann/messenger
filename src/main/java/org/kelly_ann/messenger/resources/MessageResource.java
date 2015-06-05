@@ -1,7 +1,6 @@
 package org.kelly_ann.messenger.resources;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.BeanParam;
@@ -16,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilderException;
 import javax.ws.rs.core.UriInfo;
 
 import org.kelly_ann.messenger.model.Message;
@@ -85,6 +85,10 @@ import org.kelly_ann.messenger.service.MessageService;
  * the ResponseBuilder's entity() method and then calls the build() to return a Response object which is the toResponse() method's 
  * return type.
  * 
+ * Note:  Alternatively, you can use the WebApplicationException class to return the Response object with an ErrorMessage.  However, 
+ * this leads to code where the Service is doing exception handling which can get messy.  This is best handled in separate exception 
+ * classes since Exceptions are relating to the View more.
+ * 
  */
 @Path("/messages")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -110,10 +114,12 @@ public class MessageResource {
 	// API #2 - this GET method return an existing single
 	@GET
 	@Path("/{messageId}") // this denotes that messageId will be a VARIABLE URL element
-	public Message getMessage(@PathParam("messageId") long id) { // Jersey will auto convert the String messageId to a long
-		return messageService.getMessage(id);
+	public Message getMessage(@PathParam("messageId") long id, @Context UriInfo uriInfo) {//Jersey autobox's the String msg to a long
+		Message message = messageService.getMessage(id);	
+		message.addLink(getUriForSelf(uriInfo, message), "self");
+		return message;
 	}
-	
+
 	// API #3 POST HTTP methods add a new resource
 	@POST
 	public Response addMessage(Message message, @Context UriInfo uriInfo) {
@@ -144,5 +150,22 @@ public class MessageResource {
 	@Path("/{messageId}/comments")
 	public CommentResource getCommentResource() {
 		return new CommentResource();
+	}
+	
+	/**
+	 * @param uriInfo
+	 * @param message
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws UriBuilderException
+	 */
+	private String getUriForSelf(UriInfo uriInfo, Message message)
+			throws IllegalArgumentException, UriBuilderException {
+		String uri = uriInfo.getBaseUriBuilder() 	//http://localhost:8080/messenger/webapi
+			.path(MessageResource.class)			// adds: /messages
+			.path(Long.toString(message.getId()))	// adds: /{messageId}
+			.build()
+			.toString();
+		return uri;
 	}
 }
