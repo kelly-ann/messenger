@@ -20,6 +20,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.kelly_ann.messenger.model.Message;
 import org.kelly_ann.messenger.resources.beans.MessageFilterBean;
+import org.kelly_ann.messenger.service.CommentService;
 import org.kelly_ann.messenger.service.MessageService;
 
 /*
@@ -94,64 +95,86 @@ import org.kelly_ann.messenger.service.MessageService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageResource {
-	
+
 	MessageService messageService = new MessageService();
-	
-	// GET HTTP methods return an existing single resource or existing collection of resources.
-	// API #1 - this GET method returns an existing collection of Messages
-	// this is what gets called by the REST API client tool (i.e. Postman) by default
-	@GET
-	public List<Message> getMessages(@BeanParam MessageFilterBean filterBean) {
-		if (filterBean.getYear() > 0) {
-			return messageService.getAllMessagesForYear(filterBean.getYear());
-		}
-		if (filterBean.getStart() >= 0 && filterBean.getSize() > 0) {
-			return messageService.getAllMessagesPaginated(filterBean.getStart(), filterBean.getSize());
-		}
-		return messageService.getAllMessages();
-	}
-	
-	// API #2 - this GET method return an existing single
-	@GET
-	@Path("/{messageId}") // this denotes that messageId will be a VARIABLE URL element
-	public Message getMessage(@PathParam("messageId") long id, @Context UriInfo uriInfo) {//Jersey autobox's the String msg to a long
-		Message message = messageService.getMessage(id);	
-		message.addLink(getUriForSelf(uriInfo, message), "self");
-		return message;
-	}
+	CommentService commentService = new CommentService();
 
 	// API #3 POST HTTP methods add a new resource
 	@POST
 	public Response addMessage(Message message, @Context UriInfo uriInfo) {
 		Message newMessage = messageService.addMessage(message);
 		String newId = String.valueOf(newMessage.getId());
-		URI uri = uriInfo.getAbsolutePathBuilder().path(newId).build(); //the location URI of the newly created resource
-		return Response.created(uri) 
-			.entity(newMessage)
-			.build();  //set the status code to "201" and return it and the location URI in the header
+		// the location URI of the newly created resource
+		URI uri = uriInfo.getAbsolutePathBuilder().path(newId).build(); 
+		// set the status code to "201" and return it and the location URI in the header
+		return Response.created(uri).entity(newMessage).build(); 
+																	
 	}
-	
-	// API #4 PUT HTTP methods update an existing resource
-	@PUT
-	@Path("/{messageId}")
-	public Message updateMessage(@PathParam("messageId") long id, Message message) {
-		message.setId(id);
-		return messageService.updateMessage(message);
-	}
-	
+
 	// API #5 DELETE HTTP methods remove an existing resource
 	@DELETE
 	@Path("/{messageId}")
 	public void deleteMessage(@PathParam("messageId") long id) {
 		messageService.removeMessage(id);
 	}
-	
-	// API #6 - This creates a URI SUBRESOURCE that is not attached to any specific resource and is handled by the CommentResource.java.
+
+	// API #6 - This creates a URI SUBRESOURCE that is not attached to any
+	// specific resource and is handled by the CommentResource.java.
 	@Path("/{messageId}/comments")
 	public CommentResource getCommentResource() {
 		return new CommentResource();
 	}
-	
+
+	// API #2 - this GET method return an existing single
+	@GET
+	@Path("/{messageId}")
+	// this denotes that messageId will be a VARIABLE URL element
+	public Message getMessage(@PathParam("messageId") long id,
+			@Context UriInfo uriInfo) {// Jersey autobox's the String msg to a
+										// long
+		Message message = messageService.getMessage(id);
+		message.addLink(getUriForSelf(uriInfo, message), "self");
+		message.addLink(getUriForProfile(uriInfo, message), "profile");
+		message.addLink(getUriForComments(uriInfo, message), "comments");
+		return message;
+	}
+
+	// GET HTTP methods return an existing single resource or existing
+	// collection of resources.
+	// API #1 - this GET method returns an existing collection of Messages
+	// this is what gets called by the REST API client tool (i.e. Postman) by
+	// default
+	@GET
+	public List<Message> getMessages(@BeanParam MessageFilterBean filterBean) {
+		if (filterBean.getYear() > 0) {
+			return messageService.getAllMessagesForYear(filterBean.getYear());
+		}
+		if (filterBean.getStart() >= 0 && filterBean.getSize() > 0) {
+			return messageService.getAllMessagesPaginated(
+					filterBean.getStart(), filterBean.getSize());
+		}
+		return messageService.getAllMessages();
+	}
+
+	private String getUriForComments(UriInfo uriInfo, Message message) {
+		URI uri = uriInfo.getBaseUriBuilder() 						// http://localhost:8080/messenger/webapi
+			.path(MessageResource.class) 							// adds: /messages
+			.path(MessageResource.class, "getCommentResource") 		// adds: /{messageId}/comments
+			.path(CommentResource.class) 							// adds: /
+			// this takes the template variable {messageId} and resolves it to an actual value for the URI
+			.resolveTemplate("messageId", message.getId()) 
+			.build();
+		return uri.toString();
+	}
+
+	private String getUriForProfile(UriInfo uriInfo, Message message) {
+		URI uri = uriInfo.getBaseUriBuilder() // http://localhost:8080/messenger/webapi
+			.path(ProfileResource.class) // adds: /profiles
+			.path(message.getAuthor()) // adds: /{authorName}
+			.build();
+		return uri.toString();
+	}
+
 	/**
 	 * @param uriInfo
 	 * @param message
@@ -161,11 +184,20 @@ public class MessageResource {
 	 */
 	private String getUriForSelf(UriInfo uriInfo, Message message)
 			throws IllegalArgumentException, UriBuilderException {
-		String uri = uriInfo.getBaseUriBuilder() 	//http://localhost:8080/messenger/webapi
-			.path(MessageResource.class)			// adds: /messages
-			.path(Long.toString(message.getId()))	// adds: /{messageId}
-			.build()
-			.toString();
+		String uri = uriInfo.getBaseUriBuilder() // http://localhost:8080/messenger/webapi
+				.path(MessageResource.class) // adds: /messages
+				.path(Long.toString(message.getId())) // adds: /{messageId}
+				.build().toString();
 		return uri;
 	}
+
+	// API #4 PUT HTTP methods update an existing resource
+	@PUT
+	@Path("/{messageId}")
+	public Message updateMessage(@PathParam("messageId") long id,
+			Message message) {
+		message.setId(id);
+		return messageService.updateMessage(message);
+	}
+
 }
